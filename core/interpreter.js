@@ -103,9 +103,9 @@ Interpreter = function(){
 
 		Token.reductionTokenType = {
 
-			_obsIncDef : 				{rule : [Token.M.qualifiesAsName, "_increment", "_semicolon"],									isAllowedInScript: 	true,},
-			_obsDecDef : 				{rule : [Token.M.qualifiesAsName, "_decrement", "_semicolon"],									isAllowedInScript: 	true,},
-			_obsAssign : 				{rule : [Token.M.qualifiesAsName, "_assign", Token.M.isExpression, "_semicolon"],				isAllowedInScript: 	true,},
+			_obsIncDef : 				{rule : [Token.M.qualifiesAsName, "_increment", "_semicolon"],									isAllowedInScript: 	true, isObsAssignment: true,},
+			_obsDecDef : 				{rule : [Token.M.qualifiesAsName, "_decrement", "_semicolon"],									isAllowedInScript: 	true, isObsAssignment: true,},
+			_obsAssign : 				{rule : [Token.M.qualifiesAsName, "_assign", Token.M.isExpression, "_semicolon"],				isAllowedInScript: 	true, isObsAssignment: true,},
 			_obsDefine : 				{rule : [Token.M.qualifiesAsName, "_is", Token.M.isExpression, "_semicolon"],					isAllowedInScript: 	true,},
 			_funcDef : 					{rule : ["_func", "_functionPotDefCall", Token.M.isBraced],										isAllowedInScript: 	true,},
 			_procDef : 					{rule : ["_proc", "_functionPotDefCall", Token.M.isBraced],										isAllowedInScript: 	true,},
@@ -142,36 +142,36 @@ Interpreter = function(){
 			_incompleteConDef : 		{rule : [Token.M.isExpression, "_question", Token.M.isExpression],								},
 			_completeConDefHead : 		{rule : ["_incompleteConDef", "_colon", Token.M.isCompleteConDef],								isExpression: true, isCompleteConDef: true,},
 			_completeConDefTail : 		{rule : ["_incompleteConDef", "_colon", Token.M.isExpression],									isExpression: true, isCompleteConDef: true,},
+			_elseIf : 					{rule : ["_else", "_if"],																		},
+			_ifBranch : 				{rule : ["_if", Token.M.isExpression, Token.M.isBraced],										isAllowedInScript: true, isStartIf : true,}, // Trying something new here, removed the need for brackets on if branch condition
+			_elseIfBranch : 			{rule : ["_elseIf", Token.M.isExpression, Token.M.isBraced],									},
+			_elseBranch : 				{rule : ["_else", Token.M.isBraced],															},
+			_startIfConstruct : 		{rule : [Token.M.isStartIf, "_elseIfBranch"],													isAllowedInScript: true, isStartIf : true,},
+			_completeIfConstruct : 		{rule : [Token.M.isStartIf, "_elseBranch"],														isAllowedInScript: true,},
+			_forNameInName : 			{rule : ["_for", "_openBracket", Token.M.qualifiesAsName, "_in", Token.M.qualifiesAsName, "_closeBracket", Token.M.isBraced], isAllowedInScript: true,},
+			_forInc : 					{rule : ["_for", "_openBracket", Token.M.isObsAssignment, Token.M.isExpression, "_semicolon", Token.M.qualifiesAsName, "_increment", "_closeBracket", Token.M.isBraced], isAllowedInScript: true,},
+			_forDec : 					{rule : ["_for", "_openBracket", Token.M.isObsAssignment, Token.M.isExpression, "_semicolon", Token.M.qualifiesAsName, "_decrement", "_closeBracket", Token.M.isBraced], isAllowedInScript: true,},
+			_forAssign : 				{rule : ["_for", "_openBracket", Token.M.isObsAssignment, Token.M.isExpression, "_semicolon", Token.M.qualifiesAsName, "_assign", Token.M.isExpression, "_closeBracket", Token.M.isBraced], isAllowedInScript: true,},
+			_whileLoop : 				{rule : ["_while", "_brExp", Token.M.isBraced],													isAllowedInScript: true,},
+			_caseStatement : 			{rule : ["_case", Token.M.isExpression, "_colon", Token.M.isAllowedInScript],					qualifiesAsInnerSwitch:	true,},
+			_defaultStatement : 		{rule : ["_default", "_colon", Token.M.isAllowedInScript],										qualifiesAsInnerSwitch:	true,},
+			_multipleCaseHead : 		{rule : [Token.M.isMultipleCaseStatement, "_caseStatement"],									isAllowedInScript: true, qualifiesAsInnerSwitch: true, isMultipleCaseStatement: true,},//multiple, single
+			_multipleCaseTail : 		{rule : ["_caseStatement", "_caseStatement"],													isAllowedInScript: true, qualifiesAsInnerSwitch: true, isMultipleCaseStatement: true,},
+			_completedCaseHead : 		{rule : ["_caseStatement", "_defaultStatement"],												isAllowedInScript: true, qualifiesAsInnerSwitch: true,}, //multiple, default
+			_completedCaseTail : 		{rule : [Token.M.isMultipleCaseStatement, _defaultStatement],									isAllowedInScript: true, qualifiesAsInnerSwitch: true,},
+			_switchConstruct : 			{rule : ["_switch", "_brName", "_openBrace", Token.M.qualifiesAsInnerSwitch, "_closeBrace"],	isAllowedInScript: true,},
+			_nameCommaName : 			{rule : [Token.M.qualifiesAsName, "_comma", Token.M.qualifiesAsName],							isCommaSeparated: true, isCommaSeparatedNames: true,},
+			_csnCommaName : 			{rule : [Token.M.isCommaSeparatedNames, "_comma", Token.M.qualifiesAsName],						isCommaSeparated: true, isCommaSeparatedNames: true,},
+			_expCommaExp : 				{rule : [Token.M.isExpression, "_comma", Token.M.isExpression],									isCommaSeparated: true,},
+			_cseCommaExp : 				{rule : [Token.M.isCommaSeparated, "_comma", Token.M.isExpression],								isCommaSeparated: true,},
+			_brCsn : 					{rule : ["_openBracket", Token.M.isCommaSeparatedNames, "_closeBracket"],						isBracketedNameS: true, isBracketedExpressionS: true,},
+			_brCse : 					{rule : ["_openBracket", Token.M.isCommaSeparated, "_closeBracket"],							isBracketedExpressionS: true,},
+			_brName : 					{rule : ["_openBracket", Token.M.qualifiesAsName, "_closeBracket"],								isExpression: true, isBracketedNameS: true, isBracketedExpressionS: true,},
+			_brExp : 					{rule : ["_openBracket", Token.M.isExpression, "_closeBracket"],								isExpression: true, isBracketedExpressionS: true,},
+			_brEmpty : 					{rule : ["_openBracket", "_closeBracket"],														isBracketedNameS: true,},
+			_length : 					{rule : ["_hash", Token.M.isExpression],														isExpression: true,},
+			_multipleScript : 			{rule : [Token.M.isAllowedInScript, Token.M.isAllowedInScript],									isAllowedInScript: true,},
 //UP TO HERE
-			_elseIf : 					{rule : [],																						},
-			_ifBranch : 				{rule : [],																						isAllowedInScript: true, isStartIf : true,},
-			_elseIfBranch : 			{rule : [],																						},
-			_elseBranch : 				{rule : [],																						},
-			_startIfConstruct : 		{rule : [],																						isAllowedInScript: true, isStartIf : true,},
-			_completeIfConstruct : 		{rule : [],																						isAllowedInScript: true,},
-			_forNameInName : 			{rule : [],																						isAllowedInScript: true,},
-			_forInc : 					{rule : [],																						isAllowedInScript: true,},
-			_forDec : 					{rule : [],																						isAllowedInScript: true,},
-			_forAssign : 				{rule : [],																						isAllowedInScript: true,},
-			_whileLoop : 				{rule : [],																						isAllowedInScript: true,},
-			_caseStatement : 			{rule : [],																						qualifiesAsInnerSwitch:	true,},
-			_defaultStatement : 		{rule : [],																						qualifiesAsInnerSwitch:	true,},
-			_multipleCaseHead : 		{rule : [],																						isAllowedInScript: true, qualifiesAsInnerSwitch: true,},//multiple, single
-			_multipleCaseTail : 		{rule : [],																						isAllowedInScript: true, qualifiesAsInnerSwitch: true,},
-			_completedCaseHead : 		{rule : [],																						isAllowedInScript: true, qualifiesAsInnerSwitch: true,}, //multiple, default
-			_completedCaseTail : 		{rule : [],																						isAllowedInScript: true, qualifiesAsInnerSwitch: true,},
-			_switchConstruct : 			{rule : [],																						isAllowedInScript: true,},
-			_nameCommaName : 			{rule : [],																						isCommaSeparated: true,},
-			_csnCommaName : 			{rule : [],																						isCommaSeparated: true,},
-			_expCommaExp : 				{rule : [],																						isCommaSeparated: true,},
-			_cseCommaExp : 				{rule : [],																						isCommaSeparated: true,},
-			_brCsn : 					{rule : [],																						isBracketedNameS: true, isBracketedExpressionS: true,},
-			_brCse : 					{rule : [],																						isBracketedExpressionS: true,},
-			_brName : 					{rule : [],																						isExpression: true, isBracketedNameS: true, isBracketedExpressionS: true,},
-			_brExp : 					{rule : [],																						isExpression: true, isBracketedExpressionS: true,},
-			_brEmpty : 					{rule : [],																						isBracketedNameS: true,},
-			_length : 					{rule : [],																						isExpression: true,},
-			_multipleScript : 			{rule : [],																						isAllowedInScript: true,},
 			_redundantSemi : 			{rule : [],																						isAllowedInScript: true,},
 		}
 
@@ -179,10 +179,12 @@ Interpreter = function(){
 
 			isExpression : function(token){ return Token.primitiveTokenType[token.type].isExpression || Token.reductionTokenType[token.type].isExpression; }
 			isFunctionCall : function(token){ return Token.primitiveTokenType[token.type].isFunctionCall || Token.reductionTokenType[token.type].isFunctionCall; }
+			isObsAssignment : function(token){ return Token.primitiveTokenType[token.type].isObsAssignment || Token.reductionTokenType[token.type].isObsAssignment; }
 			isBraced : function(token){ return Token.primitiveTokenType[token.type].isBraced || Token.reductionTokenType[token.type].isBraced; }
 			isArray : function(token){ return Token.primitiveTokenType[token.type].isArray || Token.reductionTokenType[token.type].isArray; }
 			isAllowedInScript : function(token){ return Token.primitiveTokenType[token.type].isAllowedInScript || Token.reductionTokenType[token.type].isAllowedInScript; }
 			isCommaSeparated : function(token){ return Token.primitiveTokenType[token.type].isCommaSeparated || Token.reductionTokenType[token.type].isCommaSeparated; }
+			isCommaSeparatedNames : function(token){ return Token.primitiveTokenType[token.type].isCommaSeparatedNames || Token.reductionTokenType[token.type].isCommaSeparatedNames; }
 			isBracketedNameS : function(token){ return Token.primitiveTokenType[token.type].isBracketedNameS || Token.reductionTokenType[token.type].isBracketedNameS; }
 			isBracketedExpressionS : function(token){ return Token.primitiveTokenType[token.type].isBracketedExpressionS || Token.reductionTokenType[token.type].isBracketedExpressionS; }
 			qualifiesAsName : function(token){ return Token.primitiveTokenType[token.type].qualifiesAsName || Token.reductionTokenType[token.type].qualifiesAsName; }
