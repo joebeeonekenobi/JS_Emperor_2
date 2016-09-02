@@ -9,10 +9,15 @@ main = function(){
 	console.log("Emperor.js");
 
 
-	interpreter = new Interpreter();
+	interpreter = window.I = new Interpreter();
 
 
 
-		interpreter.tokenise(interpreter.testSyntax["OBS1"]);
+		//var tokens = interpreter.tokenise("a+b");
+		//var tokens = interpreter.tokenise(interpreter.testSyntax["OBS1"]);
+
+		//var after = interpreter.reduce(tokens);
+
+		//console.log(after)
 
 }
